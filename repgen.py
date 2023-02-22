@@ -8,6 +8,25 @@ import pyexcel
 import os
 from time import sleep
 
+def count_rows(ws):
+    """
+    Parameters
+    ----------
+    ws : worksheet object
+    
+    Returns
+    -------
+    number of populated rows in worksheet. 
+
+    """
+    count_row = 0
+
+    for row in ws:
+        if not all([cell.value is None for cell in row]):
+            count_row += 1
+
+    return(count_row)
+
 
 def set_border(ws, cell_range):
     thin = Side(border_style="thin", color="000000")
@@ -48,7 +67,14 @@ def delete_file(file):
 
 def scrape_table(ws, content_range):
     """
-  
+    Parameters
+    ----------
+    ws: current worksheet
+    content_range: the range of cells you want in the list.
+    
+    returns
+    ----------
+    list with all the info from the selected content range.
 
     """
     scraped_info = []
@@ -60,22 +86,40 @@ def scrape_table(ws, content_range):
     return scraped_info
 
 
-def write_table(ws, rows, cols, row_range, col_range):
+
+def write_table(ws, rows, row_range, cols = None, col_range = None):
     """
+    Parameters:
+    ----------
+    ws: current worksheet
+    rows: list with data for the rows
+    cols: list with the data for the columns. (optional)
     
+    row_range: range for the "rows" content output.
+    col_range: range for the "cols" content output.(optional)
+    ----------
+    Returns:
+    ----------
+    Nothing. But writes the data on the excel sheet. 
+
+    If you just want to output a list as a table, dont use the col params. 
+    If you want to build the headers on top and at the side of the table, 
+    use all the parameters.
     """
     # write the tables.
-
+    j = 0
     for i, row in enumerate(ws[row_range]):
         for cell in row:
-            cell.value = rows[i]
-    
-
-    j = 0
-    for col in ws[col_range]:
-        for cell in col:
-            cell.value = cols[j]
+            cell.value = rows[j]
             j += 1
+
+
+    if cols != None or col_range != None:
+        j = 0
+        for col in ws[col_range]:
+            for cell in col:
+                cell.value = cols[j]
+                j += 1
 
 def date_conversion(date_string):
     """
@@ -141,75 +185,10 @@ def get_file_names():
 
     file_list = os.listdir(current_dir)
 
-    file_list.remove("growth_report.py")
+    file_list.remove("lead_report.py")
    
 
     return file_list
-
-
-def sort_by_date(file_list):
-    """
-    Parameters
-    ----------
-    file_list : List of filenames with dates on them.
-
-    Returns
-    -------
-    Sorted List By Date.
-    """
-
-    sorted_files = []
-    sorted_dates = []
-    
-    
-    
-    for file in file_list:
-        if file == "LAST_GROWTH_REPORT.xlsx":
-            pass
-        else:
-            sorted_dates.append(date_conversion(file))
-
-    sorted_dates.sort()
-    
-    
-    # FROM THE CURRENT DATETIME, GET LAST WEEK'S DATETIME
-    for file in file_list:
-        if file == "LAST_GROWTH_REPORT.xlsx":
-            
-            #needs present
-            last_week = get_last_week(sorted_dates[0])
-            
-            #LAST WEEK STRING SHOULD REFLECT THE OTHER FILES' FORMATS : Y M D
-            last_week_string = date_conversion_rev(last_week)
-            
-            newfilename = "report "+last_week_string+" lastweek.xlsx"
-            os.rename("LAST_GROWTH_REPORT.xlsx", newfilename )
-            
-            #remove old filename and add new filename
-            file_list.remove("LAST_GROWTH_REPORT.xlsx")
-            
-            current_dir = os.getcwd()
-            file_list2 = os.listdir(current_dir)
-            
-            for file in file_list2:
-                if file == newfilename:
-                    file_list.append(newfilename)
-                    
-                else:
-                    pass            
-            
-            #add the datetime to sorted_dates
-            sorted_dates.insert(0, last_week)
-            
-    
-    
-    for dt in sorted_dates:
-        for file in file_list:
-            if date_conversion(file) == dt:
-
-                sorted_files.append(file)
-        
-    return sorted_files, sorted_dates
 
 
 def get_last_week(datetime):
