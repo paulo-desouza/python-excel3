@@ -46,9 +46,13 @@ def convert_xls(xls_file):
         creates a converted XLSX file.
     
     """
-
-    pyexcel.save_book_as(file_name=xls_file,
-                         dest_file_name=xls_file+"x")
+    if "xlsx" in xls_file:
+        pass
+    else:
+        pyexcel.save_book_as(file_name=xls_file,
+                             dest_file_name=xls_file+"x")
+        
+    return xls_file + "x"
 
 
 def delete_file(file):
@@ -113,13 +117,35 @@ def write_table(ws, rows, row_range, cols = None, col_range = None):
             cell.value = rows[j]
             j += 1
 
-
-    if cols != None or col_range != None:
-        j = 0
-        for col in ws[col_range]:
-            for cell in col:
-                cell.value = cols[j]
-                j += 1
+    
+    if cols == None:
+        pass
+    
+    else:
+        try:
+            j = 0
+            for col in ws[col_range]:
+                
+                for cell in col:
+                    
+                    cell.value = cols[j]
+                    j += 1
+        
+        except:
+            pass            
+              
+        
+def mod_font(ws, cell_range, fsize=16, fbold=True):
+    """
+    to be written
+    """
+    
+    for i, row in enumerate(ws[cell_range]):
+        for cell in row:
+            cell.font = Font(size=fsize, bold=fbold)
+          
+           
+              
 
 def date_conversion(date_string):
     """
