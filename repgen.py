@@ -27,48 +27,6 @@ def count_rows(ws):
 
     return(count_row)
 
-
-def set_border(ws, cell_range):
-    thin = Side(border_style="thin", color="000000")
-    for row in ws[cell_range]:
-        for cell in row:
-            cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
-
-
-
-def convert_xls(xls_file):
-    """
-    xls_file : xls file.
-    
-    ------------
-        takes an XLS file. 
-    ------------
-        creates a converted XLSX file.
-    
-    """
-    if "xlsx" in xls_file:
-        pass
-    else:
-        pyexcel.save_book_as(file_name=xls_file,
-                             dest_file_name=xls_file+"x")
-        
-    return xls_file + "x"
-
-
-def delete_file(file):
-    """
-    file : any file.
-    
-    ----------
-        takes a file.
-    ----------
-        deletes it. 
-    
-    """
-
-    os.remove(file)
-
-
 def scrape_table(ws, content_range):
     """
     Parameters
@@ -144,8 +102,79 @@ def mod_font(ws, cell_range, fsize=16, fbold=True):
         for cell in row:
             cell.font = Font(size=fsize, bold=fbold)
           
+            
+          
+            
            
-              
+def mod_color(ws, cell_range, color='DAEEF3'):
+    
+    for i, row in enumerate(ws[cell_range]):
+        for cell in row:
+            cell.fill = PatternFill(fill_type='solid',
+                                        start_color=color,
+                                        end_color=color)
+          
+                  
+
+def set_border(ws, cell_range, _thin=True, _medium=False, _thick=False):
+    
+    thick = Side(border_style="thick", color="000000")
+    medium = Side(border_style="medium", color="000000")
+    thin = Side(border_style="thin", color="000000")
+    
+    
+    for row in ws[cell_range]:
+        
+        if _thick == True:
+            for cell in row:
+                cell.border = Border(top=thick, left=thick, right=thick, bottom=thick)
+                
+        elif _medium == True:
+            for cell in row:
+                cell.border = Border(top=medium, left=medium, right=medium, bottom=medium)
+        
+        elif _thin == True:
+            for cell in row:
+                cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+        
+        else:
+            pass
+
+
+def convert_xls(xls_file):
+    """
+    xls_file : xls file.
+    
+    ------------
+        takes an XLS file. 
+    ------------
+        creates a converted XLSX file.
+    
+    """
+    if "xlsx" in xls_file:
+        pass
+    else:
+        pyexcel.save_book_as(file_name=xls_file,
+                             dest_file_name=xls_file+"x")
+        
+    return xls_file + "x"
+
+
+def delete_file(file):
+    """
+    file : any file.
+    
+    ----------
+        takes a file.
+    ----------
+        deletes it. 
+    
+    """
+
+    os.remove(file)
+
+
+
 
 def date_conversion(date_string):
     """

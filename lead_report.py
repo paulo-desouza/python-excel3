@@ -426,7 +426,7 @@ table9_rows = ["Leads", "Connected", "Intro Call", "Business Overview Webinar",
                "Operations and Marketing Webinar", "FDD Review", "Competency Call",
                "Executive Call", "Meet the Team Schaduled", "Decision Day",
                "Awarded"]
-table9_cols = ["Goal Actual", "Goal %", "Actual", "Actual %", "Jackie Actual", "Jackie %", "Janet Actual", "Janet %"]
+table9_cols = ["Goal Actual", "Goal %", "Actual", "Actual %", "Jackie Actual", "Jackie %", "Janet Actual", "Janet %", "lorem", "lorem", "lorem", "lorem"]
 
 
      
@@ -496,17 +496,114 @@ ws["B2"].font = Font(size = 22, bold = True)
 
 # Table Header Cols and Rows
 
-# mod_font(ws, )
+# 1
 
-              
-# set borders
+# bold
+mod_font(ws,"C5:K5")
+mod_font(ws,"B6:B13")
 
-# set_border()                
+#border
+set_border(ws, "B5:K13")
+set_border(ws, "B2:K3", _medium=True)
+
+# color
+mod_color(ws, "C5:K5")
+mod_color(ws, "B6:B13")
+mod_color(ws, "B2:K3")
                 
+# 2
+
+mod_font(ws,"Q5:W5")
+mod_font(ws,"P6:P12")
+
+set_border(ws, "P5:W12")
+set_border(ws, "P2:W3", _medium=True)
+
+mod_color(ws, "P2:W3")
+mod_color(ws, "Q5:W5")
+mod_color(ws, "P6:P12")      
+ 
+# 3
+         
+mod_font(ws,"R18:U18")
+mod_font(ws,"Q19:Q21")
+
+set_border(ws, "Q18:U21")
+set_border(ws, "R16:U17", _medium=True)
+
+mod_color(ws, "R16:U17")
+mod_color(ws, "R18:U18")
+mod_color(ws, "Q19:Q21")      
+                
+# 5
+
+ws["O37"].value = 'Connected Rate:'
+
+mod_font(ws,"N30:Y30")
+mod_font(ws,"O37:P37")
+
+set_border(ws, "N30:Y31")
+set_border(ws, "Q27:V28", _medium=True)
+                
+set_border(ws,"O37:Q37")
+ws.merge_cells("O37:P37")
+
+mod_color(ws, "Q27:V28")
+mod_color(ws, "N30:Y30")
+mod_color(ws, "O37:P37") 
+
+# 6
+
+#  dynamic
+
+mod_font(ws,"R49:U49")
+mod_font(ws,"Q50:Q56")
+
+set_border(ws, "Q49:U56")
+set_border(ws, "R46:U47", _medium=True)
+
+mod_color(ws, "R46:U47")
+mod_color(ws, "R49:U49")
+mod_color(ws, "Q50:Q56") 
+
+# 7
+
+mod_font(ws,"E65:H65")
+mod_font(ws,"D66:D76")
+
+set_border(ws, "D65:H76")
+set_border(ws, "E62:H63", _medium=True)
+
+mod_color(ws, "E62:H63")
+mod_color(ws, "E65:H65")
+mod_color(ws, "D66:D76")
+       
+# 8
+
+mod_font(ws,"Q66:R66")
+mod_font(ws,"P67:P73")
+
+set_border(ws, "P66:R73")
+set_border(ws, "R62:U63", _medium=True)
+
+mod_color(ws, "R62:U63")
+mod_color(ws, "Q66:R66")
+mod_color(ws, "P67:P73")
+       
+# 9
+
+# dynamic
+
+mod_font(ws,"G82:R82")
+mod_font(ws,"F83:F93")
+
+set_border(ws, "F82:R93")
+set_border(ws, "F79:T80", _medium=True)
+
+mod_color(ws, "F79:T80")
+mod_color(ws, "G82:R82")
+mod_color(ws, "F83:F93")
+       
+
 
 wb.save("result2.xlsx")                
-                
-  
-                
-                
-                
