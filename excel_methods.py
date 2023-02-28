@@ -27,6 +27,22 @@ def count_rows(ws):
 
     return(count_row)
 
+
+def count_cols(ws, char=True):
+    """ to be written """
+    
+    count_column = 0
+    for column in ws.iter_cols():
+        if not all([cell.value is None for cell in column]):
+            count_column += 1
+    
+    
+    if char:
+        return get_column_letter(count_column)
+    else:
+        return count_column
+    
+    
 def scrape_table(ws, content_range):
     """
     Parameters
@@ -93,7 +109,7 @@ def write_table(ws, rows, row_range, cols = None, col_range = None):
             pass            
               
         
-def mod_font(ws, cell_range, fsize=16, fbold=True):
+def mod_font(ws, cell_range, fsize=15, fbold=True):
     """
     to be written
     """
