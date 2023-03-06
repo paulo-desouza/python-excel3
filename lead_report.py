@@ -5,21 +5,16 @@ from excel_methods import *  # NOQA
                         ###########################
 
 
-
 file_list = get_file_names()
+
+
+#FROM file names, get TODAY'S DATE
 
 
                             ###################
                             #### TABLE ONE ####
 
 table1_cols = ["Total", "Facebook", "FranchiseGator", "LinkedIn", "Website", "PPC", "BizBuySell", "franchise.com", "IFA"]
-table1_rows = ["Week Total", "Day1", "Day2", "Day3", "Day4", "Day5", "Day6", "Day7"]
-
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
 
 
 for file in file_list:
@@ -40,11 +35,23 @@ ws = wb.active
 
 rowcount = count_rows(ws)
     
-table_1_dict = {}
+table_1_dict = {
+        "Total": 0,
+        "Facebook": 0,
+        "FranchiseGator": 0,
+        "LinkedIn InMail": 0, 
+        "Website": 0,
+        "PPC": 0, 
+        "BizBuySell": 0,
+        "franchise.com": 0,
+        "IFA": 0
+}
     
-
-for row in range(28, rowcount+24):
-    table_1_dict[ws["B"+ str(row)].value] = ws["C"+ str(row)].value
+for key in table_1_dict.keys():
+    for row in range(27, rowcount+24):
+        if key == ws["B"+str(row)].value:
+            table_1_dict[key] = ws["D"+str(row)].value
+    
     
 # We need to add the logic to add 0s to the empty data entries. 
 
@@ -58,13 +65,44 @@ else:
     wb = Workbook()  
     ws = wb.active
     
+    # FROM file names, get TODAY'S DATE
+    for file in file_list:
+        if 'daily lead count and source' in file: 
+            
+            current_day = file.split(" ")[0]
+            
+            current_day = current_day.split('.')
+            
+            current_year = datetime.now().year
+
+            current_date = datetime.strptime(f'{current_year}-{current_day[1]}-{current_day[0]}', '%Y-%d-%m')
+            
+            first = current_date.strftime("%d/%b")
+            
+            seven_weekdays = [current_date.strftime("%d-%b")]
+            
+            for i in range(0,6):
+                time_change = timedelta(hours=24)
+                current_date = current_date + time_change
+                seven_weekdays.append(current_date.strftime("%d-%b"))
+                if i == 5:
+                    last = current_date.strftime("%d/%b")
+                    
+            current_week = f'WEEK {first.upper()} - {last.upper()}'
+            
+            
+                
+table1_rows = seven_weekdays[:]
+table1_rows.insert(0, "Week Total")
+    
+            
     
 
 
 # Title
 
 ws.merge_cells("B2:K3")
-ws["B2"].value = "DAILY LEAD AND SOURCE"
+ws["B2"].value = f"DAILY LEAD AND SOURCE | {current_week}"
 
 
 
@@ -106,29 +144,55 @@ elif ws["C13"].value == None:
 
 
 
-    
-    
-
 write_table(ws, table1_rows,              
             "B6:B"+str(len(table1_rows)+5),
             table1_cols,
             "C5:"+get_column_letter(len(table1_cols)+2)+"5")
 
 
-# write_table(ws, table_1_data, weekday[1] + ":" + get_column_letter(len(table_1_data)) + str(weekday[0]+6)) 
+table_1_data = list(table_1_dict.values())
+
+
+write_table(ws, table_1_data, weekday[1] + ":" + get_column_letter(len(table_1_data)+2) + str(weekday[0]+6)) 
+
+
+## GIVE ME THE WEEK TOTAL SO FAR::::
+
+for column in range(3, 12):
+    sum = 0
+    char = get_column_letter(column)
+    
+    for row in range(7, 14):
+        if ws[char+str(row)].value == None:
+            break
+        
+        sum += int(ws[char+str(row)].value)
+
+    
+    ws[char+str(6)].value = sum
+
+### DRAW CHART
+
+pie = PieChart()                                # Initiate the chart; 
+
+                                                # Declare label coordinates
+                                                # min_col, min_row, max_row
+                                                # Declare data coordinates
+
+labels = Reference(ws, min_row=5, min_col=4, max_col=11) 
+data = Reference(ws, min_col=4, min_row=6, max_col=11)   
+
+pie.add_data(data, from_rows=6, titles_from_data=False)       # Add data to pie chart. 
+pie.set_categories(labels)                                   # Add labels to pie chart. 
+pie.title = "Daily Lead and Source"
 
 
 
 
+
+ws.add_chart(pie, "C15")
 
 wb.save("output.xlsx")
-
-
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-##############     WE ARE WAITING ON FRANCONNECT DATA FOR THIS PART OF THE REPORT     ########################
-
 
                     #### TABLE ONE FINISH ####
                     ##########################
@@ -229,43 +293,43 @@ ws = wb.active
 
 weekday = None
 
-if ws["Q6"].value == None:
-    weekday = (1, "Q6")
+if ws["O6"].value == None:
+    weekday = (1, "O6")
     
-elif ws["Q7"].value == None:
-    weekday = (2, "Q7")
+elif ws["O7"].value == None:
+    weekday = (2, "O7")
     
-elif ws["Q8"].value == None:
-    weekday = (3, "Q8")
+elif ws["O8"].value == None:
+    weekday = (3, "O8")
     
-elif ws["Q9"].value == None:
-    weekday = (4, "Q9")
+elif ws["O9"].value == None:
+    weekday = (4, "O9")
     
-elif ws["Q10"].value == None:
-    weekday = (5, "Q10")
+elif ws["O10"].value == None:
+    weekday = (5, "O10")
     
-elif ws["Q11"].value == None:
-    weekday = (6, "Q11")
+elif ws["O11"].value == None:
+    weekday = (6, "O11")
     
-elif ws["Q12"].value == None:
-    weekday = (7, "Q12")
+elif ws["O12"].value == None:
+    weekday = (7, "O12")
 
 
 # Title
 
-ws.merge_cells("P2:W3")
-ws["P2"].value = "DAILY INQUIRY RESPONSE TIME"
+ws.merge_cells("N2:U3")
+ws["N2"].value = f"DAILY INQUIRY RESPONSE TIME | {current_week}"
 
 
 
 write_table(ws, 
-            table2_rows, "P6:P"+str(len(table2_rows)+5),
-            table2_cols, "Q5:"+get_column_letter(len(table2_cols)+16)+"5")
+            seven_weekdays, "N6:N"+str(len(table2_rows)+5),
+            table2_cols, "O5:"+get_column_letter(len(table2_cols)+15)+"5")
 
 table_2_list=list(table_2_data.values())
 
 
-write_table(ws, table_2_list, str(weekday[1])+":W"+str(weekday[1][1:]))
+write_table(ws, table_2_list, str(weekday[1])+":U"+str(weekday[1][1:]))
 
 
 wb.save("output.xlsx")
@@ -280,13 +344,14 @@ wb.save("output.xlsx")
                 ####################
                 ## TABLE  3 BEGIN ##
 
-table3_cols = ["Goal", "Week3", "Week2", "Week1"]
+
 table3_rows = ["Leads", "Connected", "Intro Call Scheduled"]
 table3_goals = ["50", "60%", "20%"]
 
 # scrape the 3 week files
 
 table_3_data = []
+dates_3 = []
 j = 0
 for file in file_list:
     if "last 3 weeks" in file:
@@ -306,30 +371,31 @@ for file in file_list:
         
         table_3_data.append(scrape_table(ws, "c5:f5"))
         table_3_data[j].pop(1)
-        
-     
+        dates_3.append(ws["A1"].value.split("(")[1][:-1].split(" - "))
         
         j += 1
-     
+        
+table3_cols = ["Goal", dates_3[0][0][:-5] + ' - ' + dates_3[0][1][:-5], dates_3[1][0][:-5] + ' - ' + dates_3[1][1][:-5], dates_3[2][0][:-5] + ' - ' + dates_3[2][1][:-5]]
+
 wb = load_workbook("output.xlsx")
 
 ws = wb.active
 
 # Title
 
-ws.merge_cells("R16:U17")
-ws["R16"].value = "Last 3 weeks' connected & scheduled rates"
+ws.merge_cells("I35:L36")
+ws["I35"].value = "Last 3 weeks' connected & scheduled rates"
 
 write_table(ws, 
-            table3_rows, "Q19:Q"+str(len(table3_rows)+18),
-            table3_cols, "R18:"+get_column_letter(len(table3_cols)+17)+"18")
-write_table(ws, table3_goals, "R19:R21")
+            table3_rows, "H39:H41",
+            table3_cols, "I38:"+get_column_letter(len(table3_cols)+8)+"38")
+write_table(ws, table3_goals, "I39:I41")
 
-write_table(ws, table_3_data[0], "S19:S21")
+write_table(ws, table_3_data[0], "J39:J41")
             
-write_table(ws, table_3_data[1], "T19:T21")
+write_table(ws, table_3_data[1], "K39:K41")
 
-write_table(ws, table_3_data[2], "U19:U21")
+write_table(ws, table_3_data[2], "L39:L41")
 
 
 
@@ -342,9 +408,6 @@ wb.save("output.xlsx")
                 
                 ####################
                 ## TABLE 4 START  ##
-                
-                
-                
                 
 for file in file_list:
     if "currentpipelinestatus" in file.lower():
@@ -380,11 +443,11 @@ ws = wb.active
 
 
                 # Title
-ws['M60'].value = "Current Pipeline Status"
-ws.merge_cells("M60:W61")
+ws['K49'].value = "Current Pipeline Status"
+ws.merge_cells("K49:U50")
 
 
-write_table(ws, scraped_4, "M63:"+get_column_letter(colcount4+12)+str(rowcount4+61))
+write_table(ws, scraped_4, "K52:"+get_column_letter(colcount4+10)+str(rowcount4+50))
 
 
 wb.save("output.xlsx")
@@ -447,18 +510,14 @@ ws = wb.active
 
 # Title
 
-ws.merge_cells("Q27:V28")
-ws["Q27"].value = "Rolling 7 Day Inquiry Lead Status"
+ws.merge_cells("O19:T20")
+ws["O19"].value = "Rolling 7 Day Inquiry Lead Status"
 
 
-write_table(ws, table5_cols, "N30:"+get_column_letter(len(table5_cols)+13)+"30")
+write_table(ws, table5_cols, "L22:W22")
 
             
 # write scraped table here
-
-
-
-
 
 
 values_dict = {
@@ -477,15 +536,20 @@ for i, item in enumerate(data_3pt2[0]):
        values_dict[item] += data_3pt2[0][i+1]
        
 
-ws["N31"].value = data_3pt1[0][0]
-ws["O31"].value = data_3pt1[0][2]
-ws["P31"].value = data_3pt1[0][3]
-ws["Q31"].value = data_3pt1[0][1]
+ws["L23"].value = data_3pt1[0][0]
+ws["M23"].value = "dontknow"
+ws["N23"].value = data_3pt1[0][2]
+ws["O23"].value = data_3pt1[0][1]
 
 table_5_list=list(values_dict.values())
 
 
-write_table(ws, table_5_list, "R31:Y31")
+write_table(ws, table_5_list, "P23:W23")
+
+
+
+ws["M29"].value = 'Connected Rate:'
+ws["O29"].value = data_3pt1[0][2].split("(")[1][:-1]
 
           
 wb.save("output.xlsx")
@@ -494,7 +558,8 @@ wb.save("output.xlsx")
                 ## TABLE 5 FINISH ##
                 ####################
                 
-                
+
+
                 
                 ####################
                 ## TABLE 6 START  ##
@@ -549,43 +614,46 @@ ws = wb.active
 
 weekday = None
 
-if ws["R50"].value == None:
-    weekday = (1, "R50")
+if ws["P39"].value == None:
+    weekday = (1, "P39")
     
-elif ws["R51"].value == None:
-    weekday = (2, "R51")
+elif ws["P40"].value == None:
+    weekday = (2, "P40")
     
-elif ws["R52"].value == None:
-    weekday = (3, "R52")
+elif ws["P41"].value == None:
+    weekday = (3, "P41")
     
-elif ws["R53"].value == None:
-    weekday = (4, "R53")
+elif ws["P42"].value == None:
+    weekday = (4, "P42")
     
-elif ws["R54"].value == None:
-    weekday = (5, "R54")
+elif ws["P43"].value == None:
+    weekday = (5, "P43")
     
-elif ws["R55"].value == None:
-    weekday = (6, "R55")
+elif ws["P44"].value == None:
+    weekday = (6, "P44")
     
-elif ws["R56"].value == None:
-    weekday = (7, "R56")
+elif ws["P45"].value == None:
+    weekday = (7, "P45")
 
 
 # Title
 
-ws.merge_cells("R46:U47")
-ws["R46"].value = "Daily # of Intro Calls Scheduled"
+ws.merge_cells("P35:S36")
+ws["P35"].value = "Daily # of Intro Calls Scheduled"
 
 
 
 
-write_table(ws, table6_rows, "Q50:Q"+str(len(table6_rows)+49),
-            salespeople, "R49:"+get_column_letter(len(salespeople)+17)+"49")
+write_table(ws, seven_weekdays, "O39:O45",
+            salespeople, "P38:"+get_column_letter(len(salespeople)+17)+"38")
 
             
 # write scraped table here
 
-write_table(ws, data_6, weekday[1]+":U"+weekday[1][1:])
+
+write_table(ws, data_6, weekday[1]+":"+get_column_letter(15+len(salespeople))+weekday[1][1:])   # the S in here needs to be dynamic. 
+
+
 
 wb.save("output.xlsx")
                 
@@ -659,22 +727,22 @@ ws = wb.active
 
 # Title
 
-ws.merge_cells("E60:H61")
-ws["E60"].value = "Rolling 30 Day New Inquiry Funnel"
+ws.merge_cells("C49:F50")
+ws["C49"].value = "Rolling 30 Day New Inquiry Funnel"
 
 
 
-write_table(ws, table7_rows, "D65:D"+str(len(table7_rows)+64),
-            table7_cols, "E64:"+get_column_letter(len(table7_rows)+4)+"64")
+write_table(ws, table7_rows, "B54:B64",
+            table7_cols, "C53:F53")
 
             
 # write scraped table here
 
-write_table(ws, new_7, "G65:H75")
+write_table(ws, new_7, "E54:F64")
 
-write_table(ws, table7_goals[0], "E65:E75")
+write_table(ws, table7_goals[0], "C54:C64")
 
-write_table(ws, table7_goals[1], "F65:F75")
+write_table(ws, table7_goals[1], "D54:D64")
 
           
 wb.save("output.xlsx")
@@ -723,10 +791,10 @@ for row in range(4, rowcount+2):
 
 prospects = []
 email_count = {
-        "EBITDA":0,
-        "a day in the life": 0,
-        "from the top down": 0,
         "welcome to the celebree school franchise":0,
+        "EBITDA":0,
+        "from the top down": 0,
+        "a day in the life": 0,
         "still interested": 0
     }
     
@@ -760,28 +828,21 @@ ws = wb.active
 
 # Title
 
-ws.merge_cells("F46:I47")
-ws["F46"].value = "Emails Read from 1/22  -  1/28 (weekly)"
+ws.merge_cells("C35:F36")
+ws["C35"].value = "Emails Read (Weekly)"
 
 
-write_table(ws, table8_rows, "E50:e54",
-            table8_cols, "E49:F49")
+write_table(ws, table8_cols, "B38:C38")
 
             
 # write scraped table here
-ws.merge_cells("E55:F55")
-ws["E55"].value = "Out of "+ str(len(prospects))+ " leads"
+ws.merge_cells("B44:C44")
+ws["B44"].value = "Out of "+ str(len(prospects))+ " leads"
 
-
-j = 0
-#for i, row in enumerate():
- #   for cell in row:
- #       cell.value = 
-  #      j += 1
+count_list = list(email_count.values())
 
 
 
-          
 wb.save("output.xlsx")
 
                 
@@ -862,31 +923,68 @@ ws = wb.active
 
 # Title
 
-ws.merge_cells("F79:T80")
-ws["F79"].value = "Rolling 30 Day Activity Funnel (All inquiry date)"
+ws.merge_cells("B68:U69")
+ws["B68"].value = "Rolling 30 Day Activity Funnel (All inquiry date)"
 
 
 
-write_table(ws, table9_rows, "F83:F"+str(len(table9_rows)+82),
-            table9_cols, "G82:"+get_column_letter(len(table9_cols)+6)+"82")
+write_table(ws, table9_rows, "B72:B82",
+            table9_cols, "C71:"+get_column_letter(len(table9_cols)+2)+"71")
 
             
 # write scraped table here
 
-write_table(ws, table7_goals[0], "G83:G93")
+write_table(ws, table7_goals[0], "C72:C82")
 
-write_table(ws, table7_goals[1], "H83:H93")
+write_table(ws, table7_goals[1], "D72:D82")
 
 
 i = 0
 for j, table in enumerate(table_9_data):
-    write_table(ws, table_9_data[j], get_column_letter(i+9)+"83:"+ get_column_letter(i+10) +"93")
+    write_table(ws, table_9_data[j], get_column_letter(i+5)+"72:"+ get_column_letter(i+6) +"82")
     i += 2
 
                 
                 ## TABLE 9 FINISH ##
                 ####################
                 
+                ####################
+                ## TABLE 10       ##
+
+
+# no scraping, just draw an empty table with the weeks' data. 
+
+ws.merge_cells("B86:L87")
+
+ws["B86"].value = f"Outbound Campaigns, Daily Calls, and Weekly Rolling Conversion Funnel | {current_week}"             
+
+    
+
+ws["B89"].value = "Relocation Campaign"
+ws["B90"].value = "Disenrollment Campaign"
+ws["B91"].value = "Prime Market Campaign"
+ws["B95"].value = "Total Daily Outbound Calls"
+ws["B96"].value = "Total Contacted Daily Calls"
+ws["B99"].value = "Bad Contact #"
+
+ws["K88"].value = "Weekly"
+ws["L88"].value = "Intro Calls"
+ws["J92"].value = "Total"
+ws["K93"].value = "Rolling Total Intro Calls from Campaigns"
+ws["K94"].value = "Total"
+
+write_table(ws, seven_weekdays, "D88:J88",
+            seven_weekdays, "D94:J94")
+
+                
+
+
+
+
+
+                ## TABLE 10 FINISH ##
+                #####################
+
                 
                 
                 
@@ -899,33 +997,35 @@ for j, table in enumerate(table_9_data):
     # either this or make new methods to apply styles based on received range
 
 for row in range(1, 100):
-    ws.row_dimensions[row].height = 32
+    ws.row_dimensions[row].height = 41
     
     for col in range(1, 60):
         char = get_column_letter(col)
     
         if row == 1:
-            ws.column_dimensions[char].width = 17
+            ws.column_dimensions[char].width = 20
         
         
         ws[char+str(row)].font = Font(size = 15)
         ws[char+str(row)].alignment = Alignment(horizontal = "center", vertical = "center", wrap_text=True)
         
+
+ws.column_dimensions["A"].width = 8
 # TITLES
 
-ws["F79"].font = Font(size = 22, bold = True)
-ws["F46"].font = Font(size = 22, bold = True)
-ws["E60"].font = Font(size = 22, bold = True)
-ws["R46"].font = Font(size = 22, bold = True)
-ws["Q27"].font = Font(size = 22, bold = True)
+ws["B68"].font = Font(size = 22, bold = True)
+ws["C35"].font = Font(size = 22, bold = True)
+ws["C49"].font = Font(size = 22, bold = True)
+ws["P35"].font = Font(size = 22, bold = True)
+ws["O19"].font = Font(size = 22, bold = True)
 ws["B27"].font = Font(size = 22, bold = True)
-ws["R16"].font = Font(size = 22, bold = True)
-ws["P2"].font = Font(size = 22, bold = True)
+ws["I35"].font = Font(size = 22, bold = True)
+ws["N2"].font = Font(size = 22, bold = True)
 ws["B2"].font = Font(size = 22, bold = True)
-ws["M60"].font = Font(size = 22, bold = True)
+ws["k49"].font = Font(size = 22, bold = True)
+ws["B86"].font = Font(size = 22, bold = True)
 
 
-# Table Header Cols and Rows
 
 # 1
 
@@ -944,133 +1044,158 @@ mod_color(ws, "B2:K3")
                 
 # 2
 
-mod_font(ws,"Q5:W5")
-mod_font(ws,"P6:P12")
+mod_font(ws,"O5:U5")
+mod_font(ws,"N6:N12")
 
-set_border(ws, "P5:W12")
-set_border(ws, "P2:W3", _medium=True)
+set_border(ws, "n5:u12")
+set_border(ws, "N2:U3", _medium=True)
 
-mod_color(ws, "P2:W3")
-mod_color(ws, "Q5:W5")
-mod_color(ws, "P6:P12")      
+mod_color(ws, "N2:U3")
+mod_color(ws, "O5:U5")
+mod_color(ws, "N6:N12")      
  
 # 3
          
-mod_font(ws,"R18:U18")
-mod_font(ws,"Q19:Q21")
+mod_font(ws,"I38:L38")
+mod_font(ws,"H39:H41")
 
-set_border(ws, "Q18:U21")
-set_border(ws, "R16:U17", _medium=True)
+set_border(ws, "H38:L41")
+set_border(ws, "I35:L36", _medium=True)
 
-mod_color(ws, "R16:U17")
-mod_color(ws, "R18:U18")
-mod_color(ws, "Q19:Q21") 
+mod_color(ws, "I35:L36")
+mod_color(ws, "I38:L38")
+mod_color(ws, "H39:H41") 
 
 # 4
 
-mod_font(ws,"N63:R63")
-mod_font(ws,"M64:M76")
+mod_font(ws,"L52:"+get_column_letter(colcount4+10)+"52") ##
+mod_font(ws,"K53:K65")
 
-set_border(ws, "M63:R76")
-set_border(ws, "M60:W61", _medium=True)
+set_border(ws, "K52:"+get_column_letter(colcount4+10)+str(rowcount4+50))##
+set_border(ws, "K49:U50", _medium=True)
 
-mod_color(ws, "N63:R63")
-mod_color(ws, "M64:M76")
-mod_color(ws, "M60:W61") 
+mod_color(ws, "L52:"+get_column_letter(colcount4+10)+"52")##
+mod_color(ws, "K53:K65")
+mod_color(ws, "K49:U50") 
                 
 # 5
 
-ws["O37"].value = 'Connected Rate:'
 
-mod_font(ws,"N30:Y30")
-mod_font(ws,"O37:P37")
 
-set_border(ws, "N30:Y31")
-set_border(ws, "Q27:V28", _medium=True)
+mod_font(ws, "L22:W22")
+mod_font(ws, "M29:N29")
+
+set_border(ws, "L22:W23")
+set_border(ws, "O19:T20", _medium=True)
                 
-set_border(ws,"O37:Q37")
-ws.merge_cells("O37:P37")
+set_border(ws,"M29:O29")
+ws.merge_cells("M29:N29")
 
-mod_color(ws, "Q27:V28")
-mod_color(ws, "N30:Y30")
-mod_color(ws, "O37:P37") 
+mod_color(ws, "O19:T20")
+mod_color(ws, "L22:W22")
+mod_color(ws, "M29:N29") 
 
 # 6
 
 #  dynamic
 
-mod_font(ws,"R49:U49") ##
-mod_font(ws,"Q50:Q56")
+mod_font(ws,"P38:"+get_column_letter(len(salespeople)+15)+"38") ##
+mod_font(ws,"O39:O45")
 
-set_border(ws, "Q49:U56")  ##
-set_border(ws, "R46:U47", _medium=True)
+set_border(ws, "O38:"+ get_column_letter(len(salespeople)+15) +"45")  ##
+set_border(ws, "P35:S36", _medium=True)
 
-mod_color(ws, "R46:U47")
-mod_color(ws, "R49:U49") ##
-mod_color(ws, "Q50:Q56") 
+mod_color(ws, "P35:S36")
+mod_color(ws, "P38:"+get_column_letter(len(salespeople)+15)+"38") ##
+mod_color(ws, "O39:O45") 
 
 # 7
 
-mod_font(ws,"E64:H64")
-mod_font(ws,"D65:D75")
+mod_font(ws,"C53:F53")
+mod_font(ws,"B54:B64")
 
-set_border(ws, "D64:H75")
-set_border(ws, "E60:H61", _medium=True)
+set_border(ws, "B53:F64")
+set_border(ws, "C49:F50", _medium=True)
 
-mod_color(ws, "E60:H61")
-mod_color(ws, "E64:H64")
-mod_color(ws, "D65:D75")
+mod_color(ws, "C49:F50")
+mod_color(ws, "C53:F53")
+mod_color(ws, "B54:B64")
        
 # 8
 
-mod_font(ws, "E49:F49")
-mod_font(ws, "E50:E54")
-mod_font(ws, "E55:F55")
+mod_font(ws, "B38:C38")
+mod_font(ws, "B39:B43")
+mod_font(ws, "B44:C34")
 
-set_border(ws, "E49:F54")
-set_border(ws, "F46:I47", _medium=True)
-set_border(ws, "E55:F55", _medium=True)
+set_border(ws, "B38:C43")
+set_border(ws, "C35:F36", _medium=True)
+set_border(ws, "B44:C44", _medium=True)
 
-mod_color(ws, "F46:I47")
-mod_color(ws, "E49:F49")
-mod_color(ws, "E50:E54")
+mod_color(ws, "C35:F36")
+mod_color(ws, "B38:C38")
+mod_color(ws, "B39:B43")
 
 
 # 9
 
 # dynamic
 
-mod_font(ws,"G82:R82") ##
-mod_font(ws,"F83:F93")
+mod_font(ws,"C71:"+get_column_letter(len(table9_cols)+2)+"71") ##
+mod_font(ws,"B72:B82")
 
-set_border(ws, "F82:R93") ##
-set_border(ws, "F79:T80", _medium=True)
+set_border(ws, "B71:"+get_column_letter(len(table9_cols)+2)+"82") ## 
+set_border(ws, "B68:U69", _medium=True)
 
-mod_color(ws, "F79:T80")
-mod_color(ws, "G82:R82") ##
-mod_color(ws, "F83:F93")
+mod_color(ws, "B68:U69")
+mod_color(ws, "C71:"+get_column_letter(len(table9_cols)+2)+"71") ## 
+mod_color(ws, "B72:B82")
        
+
+#10
+
+mod_font(ws, "D88:L88")
+mod_font(ws, "B89:B91")
+mod_font(ws, "D94:K94")
+mod_font(ws, "B95:B99")
+mod_font(ws, "J92:J92")
+mod_font(ws, "K93:K93")
+
+set_border(ws, "B86:L87", _medium=True)
+set_border(ws, "B88:L91")
+set_border(ws, "J92:L92")
+set_border(ws, "K93:L93")
+set_border(ws, "B94:K96")
+set_border(ws, "B99:I99")
+
+mod_color(ws, "B86:L87")
+mod_color(ws, "D88:L88")
+mod_color(ws, "D94:K94")
+mod_color(ws, "B99:B99")
+mod_color(ws, "J92:J92")
+mod_color(ws, "B89:B91")
+mod_color(ws, "B95:B96")
+mod_color(ws, "K93:L93", "EBE600")
+
 
 ### CELL SPACING MODS
 
-# LIST WITH 2 LINERS
-
-twoliners = [5,21,30,72,73,75,89,90,92,82]
 
 # LIST WITH 3 LINERS
-threeliners = [71,70,69,74,86,87,91]
+threeliners = [76,75,58,57,54,42]
 
 
-for row in twoliners:
-    ws.row_dimensions[row].height = 43
 
 for row in threeliners:
     ws.row_dimensions[row].height = 68
 
 ws.column_dimensions["J"].width = 18
 
+ws.row_dimensions[93].height = 82
+
 
 ws.sheet_view.zoomScale = 60
 
 
 wb.save("output.xlsx")                
+
+

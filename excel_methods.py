@@ -8,6 +8,15 @@ import pyexcel
 import os
 from time import sleep
 
+from openpyxl.chart import (
+    PieChart,
+    ProjectedPieChart,
+    Reference
+)
+from openpyxl.chart.series import DataPoint
+
+
+
 def count_rows(ws):
     """
     Parameters
